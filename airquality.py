@@ -44,3 +44,14 @@ df["state"] = df["state"].str.strip().str.title()
 #import pandas as pd
 df.to_csv("air_qual.csv", index = False)
 
+#Visualization of data
+#bar plot
+avg_pollutants = df.groupby("pollutant_id")["pollutant_avg"].mean().sort_values(ascending=False)
+plt.figure(figsize = (10,5))
+plt.bar(avg_pollutants.index, avg_pollutants.values, color="blue")
+plt.xlabel("Pollutants")
+plt.ylabel("Average Pollutants level")
+plt.title("Average Pollutant Levels comparison")
+plt.xticks(rotation = 45)
+plt.yticks(rotation = 45)
+plt.show()
