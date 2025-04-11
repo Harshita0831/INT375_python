@@ -1,7 +1,7 @@
-import numpy as np
-import pandas as pd
-import matplotlib.pyplot as plt
-import seaborn as sns
+import numpy as np 
+import pandas as pd 
+import matplotlib.pyplot as plt   
+import seaborn as sns  
 
 #LOADING DATASET
 df = pd.read_csv(r'C:\Users\Harshita\Downloads\air_qual.csv')
@@ -25,3 +25,22 @@ print("Missing values after cleaning: \n",df.isnull().sum())
 
 #Printing the dataset after cleaning
 print(df)
+
+#Some operations on dataset
+print("First 15 rows of Dataset: ",df.head(15))
+print("Last 15 rows of Dataset: ",df.tail(15))
+print("Datatype of Dataset: ",df.dtypes)
+print("Shape of Dataset: ",df.shape)
+
+#Handling Duplicates
+print(f"Duplicate Rows: ",df.duplicated().sum())
+df.drop_duplicates(inplace = True)    #removing duplicates
+
+# Finding Unique value
+print("Unique State: ",df["state"].unique())   #checking unique values
+df["state"] = df["state"].str.strip().str.title()
+
+
+#import pandas as pd
+df.to_csv("air_qual.csv", index = False)
+
