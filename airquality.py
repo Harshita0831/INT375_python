@@ -48,10 +48,40 @@ df.to_csv("air_qual.csv", index = False)
 #bar plot
 avg_pollutants = df.groupby("pollutant_id")["pollutant_avg"].mean().sort_values(ascending=False)
 plt.figure(figsize = (10,5))
-plt.bar(avg_pollutants.index, avg_pollutants.values, color="blue")
+plt.bar(avg_pollutants.index, avg_pollutants.values, color=["blue","green", "indigo", "orange","yellow", "red", "grey" ])
 plt.xlabel("Pollutants")
 plt.ylabel("Average Pollutants level")
 plt.title("Average Pollutant Levels comparison")
+plt.xticks(rotation = 45)
+plt.yticks(rotation = 45)
+plt.show()
+
+#using histogram to see maximum pollutant
+plt.figure(figsize=(10,5))
+plt.hist(df["pollutant_max"].dropna(), bins = 50, color = "green", edgecolor = "black", linestyle = ":")
+plt.xlabel("Maximum Pollutant Level")
+plt.ylabel("Frequency")
+plt.title("Distribution of Maximum Pollutant Levels")
+plt.show()
+
+#Comparison between Maximum and minimum pollutant using 
+plt.figure(figsize=(10, 6))
+sns.scatterplot(data=df, x="pollutant_min", y="pollutant_max", hue="pollutant_id", palette="viridis", alpha=0.7)
+plt.xlabel("MinimumPollutant Level")
+plt.ylabel("Maximum Pollutant Level")
+plt.title("Scatter plot for Minimum vs Maximum Pollutant Levels")
+plt.show()
+
+
+#Using Line graph to see CO(Carbon monxide) over a period of time
+df["last_update"] = pd.to_datetime(df["last_update"], format="%d-%m-%Y %H:%M")
+co_df = df[df["pollutant_id"] == "CO"]
+daily_co = co_df.groupby(co_df["last_update"].dt.date)["pollutant_avg"].mean()
+plt.figure(figsize=(12, 6))
+sns.lineplot(x=daily_co.index, y=daily_co.values, color = "blue", marker="^")
+plt.xlabel("Date")
+plt.ylabel("Average Carbon Monoxide level")
+plt.title("Daily Average of Carbon Monoxide over time")
 plt.xticks(rotation = 45)
 plt.yticks(rotation = 45)
 plt.show()
