@@ -128,24 +128,12 @@ print("Outliers in Pollutant Average", outliers["pollutant_avg"])
 
 
 #using Heatmap to show patterns between pollutant average and state
-pivot = df.pivot_table(values="pollutant_avg", index="state", columns = "pollutant_id", aggfunc="mean")
+corr_matrix = df.corr(numeric_only=True)
+plt.figure(figsize=(10, 8))
 
-pivot = pivot.round(1)
-top_states = df.groupby("state")["pollutant_avg"].mean().sort_values(ascending=False).head(4).index
-pivot = pivot.loc[top_states]
-
-correlation_matrix = df.corr(numeric_only = True)
-print("Correlation Matrix")
-plt.figure(figsize=(10,5))
-sns.heatmap(pivot, annot=True, fmt=".2f", cmap="Blues", linewidth=0.5)
-
-#plt.xlabel("Pollutant Type")
-#plt.ylabel("State")
-plt.title("Correlation Heatmap")
+sns.heatmap(corr_matrix, annot=True, fmt=".2f", cmap="Blues", linewidths=0.5, cbar=True, square=True)
+plt.title("Correlation Matrix", fontsize=14)
+plt.xticks(rotation=45)
+plt.yticks(rotation=0)
+#plt.tight_layout()
 plt.show()
-
-
-'''corr = df.corr()
-sns.heatmap(corr, cmap = "Blues", vmin = -1, vmax = 1, annot = True)
-plt.title("Correlation Heatmap")
-plt.show()'''
