@@ -48,7 +48,7 @@ df.to_csv("air_qual.csv", index = False)
 #bar plot
 avg_pollutants = df.groupby("pollutant_id")["pollutant_avg"].mean().sort_values(ascending=False)
 plt.figure(figsize = (10,5))
-plt.bar(avg_pollutants.index, avg_pollutants.values, color=["blue","green", "indigo", "orange","yellow", "red", "grey" ])
+plt.bar(avg_pollutants.index, avg_pollutants.values, color=sns.color_palette("Blues", 7), edgecolor = "black")
 plt.xlabel("Pollutants")
 plt.ylabel("Average Pollutants level")
 plt.title("Average Pollutant Levels comparison")
@@ -58,13 +58,13 @@ plt.show()
 
 #using histogram to see maximum pollutant
 plt.figure(figsize=(10,5))
-plt.hist(df["pollutant_max"].dropna(), bins = 50, color = "green", edgecolor = "black", linestyle = ":")
+plt.hist(df["pollutant_max"].dropna(), bins = 30, color = "green", edgecolor = "black", linestyle = ":")
 plt.xlabel("Maximum Pollutant Level")
 plt.ylabel("Frequency")
 plt.title("Distribution of Maximum Pollutant Levels")
 plt.show()
 
-#Comparison between Maximum and minimum pollutant using 
+#Comparison between Maximum and minimum pollutant using scatter plot
 plt.figure(figsize=(10, 6))
 sns.scatterplot(data=df, x="pollutant_min", y="pollutant_max", hue="pollutant_id", palette="viridis", alpha=0.7)
 plt.xlabel("MinimumPollutant Level")
@@ -73,7 +73,7 @@ plt.title("Scatter plot for Minimum vs Maximum Pollutant Levels")
 plt.show()
 
 
-#Using Line graph to see CO(Carbon monxide) over a period of time
+#Using Line graph to see CO(Carbon monoxide) over a period of time
 df["last_update"] = pd.to_datetime(df["last_update"], format="%d-%m-%Y %H:%M")
 co_df = df[df["pollutant_id"] == "CO"]
 daily_co = co_df.groupby(co_df["last_update"].dt.date)["pollutant_avg"].mean()
@@ -85,3 +85,67 @@ plt.title("Daily Average of Carbon Monoxide over time")
 plt.xticks(rotation = 45)
 plt.yticks(rotation = 45)
 plt.show()
+
+#State wise pollution monitoring using pie chart
+state_station_counts = df.groupby("state")["station"].nunique().sort_values(ascending=False)
+
+#Keep top 5, group the rest as "Others"
+top = 5
+top_states = state_station_counts.head(top)
+others = pd.Series([state_station_counts.iloc[top:].sum()], index=["Others"])
+final_counts = pd.concat([top_states, others])
+
+
+plt.figure(figsize=(8,8))
+colors = sns.color_palette("Blues", 6)
+plt.pie(final_counts, labels=final_counts.index, autopct="%1.1f%%", colors=colors)
+
+plt.title("State wise Distribution of Monitoring Stations")
+plt.show()
+
+
+
+#Using boxplot to detect outliers in pollutant_avg 
+sns.boxplot(x=df["pollutant_avg"])
+plt.title('The boxplot of average pollutant')
+plt.show()
+
+#outliers boundaries of pollutant_avg
+q1 = df["pollutant_avg"].quantile(0.25)
+q3 = df["pollutant_avg"].quantile(0.75)
+IQR = q3 - q1
+
+lower_bound = q1 - 1.5*IQR
+upper_bound = q3 + 1.5*IQR
+
+print(lower_bound)    #-80.5
+print(upper_bound)    #171.5
+
+#detect outliers using boxplot of average pollutant
+outliers = df[(df["pollutant_avg"] < lower_bound) | (df["pollutant_avg"] > upper_bound)]
+print("Outliers in Pollutant Average", outliers["pollutant_avg"])
+
+
+
+#using Heatmap to show patterns between pollutant average and state
+pivot = df.pivot_table(values="pollutant_avg", index="state", columns = "pollutant_id", aggfunc="mean")
+
+pivot = pivot.round(1)
+top_states = df.groupby("state")["pollutant_avg"].mean().sort_values(ascending=False).head(4).index
+pivot = pivot.loc[top_states]
+
+correlation_matrix = df.corr(numeric_only = True)
+print("Correlation Matrix")
+plt.figure(figsize=(10,5))
+sns.heatmap(pivot, annot=True, fmt=".2f", cmap="Blues", linewidth=0.5)
+
+#plt.xlabel("Pollutant Type")
+#plt.ylabel("State")
+plt.title("Correlation Heatmap")
+plt.show()
+
+
+'''corr = df.corr()
+sns.heatmap(corr, cmap = "Blues", vmin = -1, vmax = 1, annot = True)
+plt.title("Correlation Heatmap")
+plt.show()'''
